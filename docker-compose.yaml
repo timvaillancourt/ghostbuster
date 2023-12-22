@@ -26,6 +26,7 @@ services:
       -user root \
       -host replica \
       -assume-master-host primary \
+      -throttle-control-replicas=replica:3306 \
       -database test \
       -table testtable \
       -alter 'ENGINE=InnoDB' \

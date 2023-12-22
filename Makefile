@@ -16,6 +16,6 @@ down:
 	GIT_TAG=$(GIT_TAG) docker-compose down -v
 
 cut-over:
-	rm -f postpone.flag
+	rm -vrf postpone.flag
 
-clean: down cut-over
+clean: cut-over down

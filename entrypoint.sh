@@ -10,7 +10,7 @@ replication_ready() {
 }
 
 until replication_ready; do
-  echo "== Waiting for replica to connect to primary =="
+  echo "== Waiting for replica to replicate from primary =="
   sleep 5
 done
 
