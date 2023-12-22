@@ -21,8 +21,18 @@ services:
   gh-ost:
     build:
       args:
-        GIT_TAG: v1.1.6-slack1
-    command: --database test --table testtable --alter ENGINE=InnoDB --user root --host replica --assume-master-host primary --exact-rowcount --concurrent-rowcount --postpone-cut-over-flag-file /tmp/postpone.flag
+        GIT_TAG: ${GIT_TAG}
+    command: |
+      -user root \
+      -host replica \
+      -assume-master-host primary \
+      -database test \
+      -table testtable \
+      -alter 'ENGINE=InnoDB' \
+      -exact-rowcount \
+      -concurrent-rowcount \
+      -postpone-cut-over-flag-file /tmp/postpone.flag \
+      -verbose
     volumes:
       - ./postpone.flag:/tmp/postpone.flag:ro
     depends_on:

@@ -1,14 +1,16 @@
+GIT_TAG=v1.1.6-slack1
+
 all: up
 
 build:
-	docker-compose build
+	GIT_TAG=$(GIT_TAG) docker-compose build
 
 up:
 	touch postpone.flag
-	docker-compose up
+	GIT_TAG=$(GIT_TAG) docker-compose up
 
 down:
-	docker-compose down -v
+	GIT_TAG=$(GIT_TAG) docker-compose down -v
 
 cut-over:
 	rm -f postpone.flag
