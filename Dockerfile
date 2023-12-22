@@ -10,7 +10,7 @@ RUN go build -ldflags "-X main.AppVersion=${GIT_TAG}" -o /gh-ost ./go/cmd/gh-ost
 
 FROM debian:bullseye
 
-RUN apt-get update && apt-get install -y default-mysql-client
+RUN apt-get update && apt-get install -y curl default-mysql-client
 
 COPY --from=build /gh-ost /usr/local/bin/gh-ost
 
