@@ -1,3 +1,3 @@
 # ghostbuster
 
-<img src="ghostbuster.svg" width=500>
+<img src="ghostbuster.svg" height=500>
