@@ -26,13 +26,13 @@ services:
       -user root \
       -host replica \
       -assume-master-host primary \
-      -throttle-control-replicas=replica:3306 \
+      -throttle-control-replicas replica:3306 \
       -database test \
       -table testtable \
       -alter 'ENGINE=InnoDB' \
+      -postpone-cut-over-flag-file /tmp/postpone.flag \
       -exact-rowcount \
       -concurrent-rowcount \
-      -postpone-cut-over-flag-file /tmp/postpone.flag \
       -verbose
     volumes:
       - ./postpone.flag:/tmp/postpone.flag:ro
