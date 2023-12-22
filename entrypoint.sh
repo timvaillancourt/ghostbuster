@@ -11,7 +11,7 @@ replication_ready() {
 
 until replication_ready; do
   echo "== Waiting for replica to connect to primary =="
-  sleep 2
+  sleep 5
 done
 
 gh-ost $*
