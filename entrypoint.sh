@@ -17,5 +17,6 @@ echo "# $0: enabling toxiproxy proxies"
 curl -sLX POST http://toxiproxy:8474/reset
 
 echo "# executing gh-ost command"
+[ -e /tmp/gh-ost.test.testtable.sock ] && rm -f /tmp/gh-ost.test.testtable.sock
 touch /postpone.flag
 gh-ost $*

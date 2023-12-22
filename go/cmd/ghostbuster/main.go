@@ -11,7 +11,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const maxWriters = 8
+const maxWriters = 4
 
 type testRow struct {
 	firstname string

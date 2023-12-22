@@ -49,11 +49,14 @@ services:
       -alter 'ENGINE=InnoDB' \
       -exact-rowcount \
       -concurrent-rowcount \
-      -max-lag-millis 2000 \
+      -chunk-size 100 \
+      -max-lag-millis 2500 \
+      -nice-ratio 0.25 \
       -max-load 'Threads_running=50' \
       -critical-load 'Threads_running=100' \
       -critical-load-hibernate-seconds 90 \
       -initially-drop-ghost-table \
+      --initially-drop-old-table \
       -postpone-cut-over-flag-file /postpone.flag \
       -verbose \
       -execute
