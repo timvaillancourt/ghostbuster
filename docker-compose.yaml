@@ -2,7 +2,7 @@ version: "3.8"
 services:
   primary:
     image: percona/percona-server:8.0
-    command: --server-id=1 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency --port=3306
+    command: --server-id=1 --port=3306 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency --innodb_flush_log_at_trx_commit=2 --sync_binlog=0
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: true
     ports:
@@ -11,7 +11,7 @@ services:
       - ./init-primary.sql:/docker-entrypoint-initdb.d/init-primary.sql:ro
   replica:
     image: percona/percona-server:8.0
-    command: --server-id=2 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency --port=3307 --read_only=ON
+    command: --server-id=2 --port=3307 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency --innodb_flush_log_at_trx_commit=2 --sync_binlog=0 --read_only=ON
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: true
     ports:
@@ -49,13 +49,14 @@ services:
       -alter 'ENGINE=InnoDB' \
       -exact-rowcount \
       -concurrent-rowcount \
+      -max-lag-millis 2000 \
       -max-load 'Threads_running=50' \
       -critical-load 'Threads_running=100' \
       -critical-load-hibernate-seconds 90 \
-      -postpone-cut-over-flag-file /tmp/postpone.flag \
-      -verbose
-    volumes:
-      - ./postpone.flag:/tmp/postpone.flag:ro
+      -initially-drop-ghost-table \
+      -postpone-cut-over-flag-file /postpone.flag \
+      -verbose \
+      -execute
     depends_on:
       - primary
       - replica
