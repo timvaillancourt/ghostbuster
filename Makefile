@@ -21,4 +21,12 @@ down:
 cut-over:
 	rm -vrf postpone.flag
 
+partition-replica:
+	curl -sX POST -d '{"enabled":false}' "http://localhost:8474/proxies/replica" | jq .
+
+ghostbuster.svg: ghostbuster.d2
+	d2 ghostbuster.d2 ghostbuster.svg
+
+assets: ghostbuster.svg
+
 clean: cut-over down

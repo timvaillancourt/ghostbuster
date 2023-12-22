@@ -1,1 +1,3 @@
 # ghostbuster
+
+![Architecture](ghostbuster.svg)

@@ -1,0 +1,9 @@
+ghostbuster: {
+  gh-ost: gh-ost
+}
+ghostbuster.gh-ost -> toxiproxy: MySQL
+
+ghostbuster -> toxiproxy: REST API
+
+toxiproxy -> primary: MySQL
+toxiproxy -> replica: MySQL

@@ -18,9 +18,11 @@ services:
       - 3307:3307
     volumes:
       - ./init-replica.sql:/docker-entrypoint-initdb.d/init-replica.sql:ro
+    depends_on:
+      - primary
   toxiproxy:
     image: ghcr.io/shopify/toxiproxy
-    command: -host=0.0.0.0 -config /toxiproxy.json
+    command: -host=0.0.0.0 -config /toxiproxy.json -proxy-metrics
     expose:
       - 3306
       - 3307
@@ -40,14 +42,17 @@ services:
       -user root \
       -host toxiproxy \
       -port 3307 \
-      -assume-master-host toxiproxy:3306 \
-      -throttle-control-replicas toxiproxy:3307 \
+      -assume-master-host 'toxiproxy:3306' \
+      -throttle-control-replicas 'toxiproxy:3307' \
       -database test \
       -table testtable \
       -alter 'ENGINE=InnoDB' \
-      -postpone-cut-over-flag-file /tmp/postpone.flag \
       -exact-rowcount \
       -concurrent-rowcount \
+      -max-load 'Threads_running=50' \
+      -critical-load 'Threads_running=100' \
+      -critical-load-hibernate-seconds 90 \
+      -postpone-cut-over-flag-file /tmp/postpone.flag \
       -verbose
     volumes:
       - ./postpone.flag:/tmp/postpone.flag:ro
