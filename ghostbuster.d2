@@ -1,9 +1,24 @@
 ghostbuster: {
   gh-ost: gh-ost
 }
-ghostbuster.gh-ost -> toxiproxy: MySQL
 
-ghostbuster -> toxiproxy: REST API
+toxiproxy: {
+  primary: :3306
+  replica: :3307
+}
 
-toxiproxy -> primary: MySQL
-toxiproxy -> replica: MySQL
+ghostbuster -> toxiproxy: REST API {
+  style.stroke-dash: 3
+}
+ghostbuster.gh-ost -> toxiproxy.primary: MySQL\n(applier)
+ghostbuster.gh-ost -> toxiproxy.replica: MySQL\n(inspector)
+
+primary: {
+  shape: cylinder
+}
+replica: {
+  shape: cylinder
+}
+
+toxiproxy.primary -> primary: MySQL
+toxiproxy.replica -> replica: MySQL

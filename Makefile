@@ -25,7 +25,7 @@ partition-replica:
 	curl -sX POST -d '{"enabled":false}' "http://localhost:8474/proxies/replica" | jq .
 
 ghostbuster.svg: ghostbuster.d2
-	d2 ghostbuster.d2 ghostbuster.svg
+	d2 --dark-theme 200 ghostbuster.d2 ghostbuster.svg
 
 assets: ghostbuster.svg
 
