@@ -1,3 +1,3 @@
 # ghostbuster
 
-![Architecture](ghostbuster.svg)
+<img src="ghostbuster.svg" width=500>
