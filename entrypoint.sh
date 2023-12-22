@@ -1,16 +1,15 @@
 #!/bin/bash
 
 replication_ready() {
-  running_threads=$(mysql -uroot -hreplica -e "show replica status\G" | egrep "Replica_(IO|SQL)_Running:" | grep -c 'Yes$')
-  if [ "$running_threads" -eq 2 ]; then
-    return 0
-  else
-    return 1
-  fi
+  # just check replication got started
+  running_threads=$(mysql -uroot -hreplica -e 'show replica status\G' | egrep -c 'Replica_(IO|SQL)_Running: Yes$')
+  [ "$running_threads" -eq 2 ] && return 0
+  return 1
 }
 
+echo "# $0: waiting for replication to be running"
 until replication_ready; do
-  echo "== Waiting for replica to replicate from primary =="
+  echo "# $0: waiting for 'replica' to replicate from primary =="
   sleep 5
 done
 
