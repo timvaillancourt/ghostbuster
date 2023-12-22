@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  primary:
+    image: percona/percona-server:8.0
+    command: --server-id 0 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+    ports:
+      - 3306:3306
+    volumes:
+      - ./init-primary.sql:/docker-entrypoint-initdb.d/init-primary.sql:ro
+  replica:
+    image: percona/percona-server:8.0
+    command: --server-id 1 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency --read_only=ON
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+    ports:
+      - 3307:3306
+    volumes:
+      - ./init-replica.sql:/docker-entrypoint-initdb.d/init-replica.sql:ro
+  ghost:
+    build:
+      args:
+        GIT_TAG: v1.1.6-slack1
+    depends_on:
+      - primary
+      - replica
