@@ -2,7 +2,7 @@
 
 replication_ready() {
   # just check replication got started
-  running_threads=$(mysql -uroot -hreplica -Be 'show replica status\G' | egrep -c 'Replica_(IO|SQL)_Running: Yes$')
+  running_threads=$(mysql -uroot -htoxiproxy -P3307 -Be 'show replica status\G' | egrep -c 'Replica_(IO|SQL)_Running: Yes$')
   [ "$running_threads" -eq 2 ] && return 0
   return 1
 }

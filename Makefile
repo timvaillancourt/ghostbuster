@@ -8,7 +8,10 @@ build:
 up-mysql:
 	GIT_TAG=$(GIT_TAG) docker-compose up --remove-orphans -d primary replica
 
-up: up-mysql
+up-toxiproxy:
+	GIT_TAG=$(GIT_TAG) docker-compose up --remove-orphans -d toxiproxy
+
+up: up-mysql up-toxiproxy
 	touch postpone.flag
 	GIT_TAG=$(GIT_TAG) docker-compose up --remove-orphans gh-ost
 

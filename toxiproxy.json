@@ -1,0 +1,14 @@
+[
+  {
+    "name": "primary",
+    "listen": "[::]:3306",
+    "upstream": "primary:3306",
+    "enabled": true
+  },
+  {
+    "name": "replica",
+    "listen": "[::]:3307",
+    "upstream": "replica:3307",
+    "enabled": true
+  }
+]

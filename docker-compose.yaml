@@ -2,7 +2,7 @@ version: "3.8"
 services:
   primary:
     image: percona/percona-server:8.0
-    command: --server-id=1 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency
+    command: --server-id=1 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency --port=3306
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: true
     ports:
@@ -11,22 +11,37 @@ services:
       - ./init-primary.sql:/docker-entrypoint-initdb.d/init-primary.sql:ro
   replica:
     image: percona/percona-server:8.0
-    command: --server-id=2 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency --read_only=ON
+    command: --server-id=2 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency --port=3307 --read_only=ON
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: true
     ports:
-      - 3307:3306
+      - 3307:3307
     volumes:
       - ./init-replica.sql:/docker-entrypoint-initdb.d/init-replica.sql:ro
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy
+    command: -host=0.0.0.0 -config /toxiproxy.json
+    expose:
+      - 3306
+      - 3307
+      - 8474
+    ports:
+      - 8474:8474
+    volumes:
+      - ./toxiproxy.json:/toxiproxy.json:ro
+    depends_on:
+      - primary
+      - replica
   gh-ost:
     build:
       args:
         GIT_TAG: ${GIT_TAG}
     command: |
       -user root \
-      -host replica \
-      -assume-master-host primary \
-      -throttle-control-replicas replica:3306 \
+      -host toxiproxy \
+      -port 3307 \
+      -assume-master-host toxiproxy:3306 \
+      -throttle-control-replicas toxiproxy:3307 \
       -database test \
       -table testtable \
       -alter 'ENGINE=InnoDB' \
@@ -39,3 +54,4 @@ services:
     depends_on:
       - primary
       - replica
+      - toxiproxy
