@@ -18,7 +18,7 @@ down:
 	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose down -v
 
 cut-over:
-	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose exec -it gh-ost rm -vf /postpone.flag
+	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose exec -it test rm -vf /postpone.flag
 
 partition-replica:
 	curl -sX POST -d '{"enabled":false}' "http://localhost:8474/proxies/replica" | jq .
