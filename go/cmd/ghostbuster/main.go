@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"flag"
 	"log"
 	"sync"
 	"time"
@@ -11,7 +12,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const maxWriters = 4
+var (
+	maxRows    int64 = 250000
+	maxWriters int   = 4
+)
 
 type testRow struct {
 	firstname string
@@ -40,11 +44,19 @@ func (row *testRow) Insert(db *sql.DB) error {
 }
 
 func main() {
+	flag.IntVar(&maxWriters, "writers", maxWriters, "number of writers")
+	flag.Int64Var(&maxRows, "max-rows", maxRows, "number of rows to write, 0 == run forever")
+	flag.Parse()
+
 	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/test")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	if err := db.Ping(); err != nil {
+		log.Fatal(err)
+	}
 
 	var wg sync.WaitGroup
 	rowsChan := make(chan testRow, maxWriters)
@@ -70,13 +82,15 @@ func main() {
 		writers++
 	}
 
-	var count int64
-	for count < 100000 {
-		count++
+	defer func() {
+		close(rowsChan)
+		wg.Wait()
+	}()
+
+	var rows int64
+	for rows < maxRows {
+		rows++
 		rowsChan <- newTestRow()
 	}
-	log.Printf("wrote %d rows, exiting", count)
-
-	close(rowsChan)
-	wg.Wait()
+	log.Printf("wrote %d rows, exiting", rows)
 }

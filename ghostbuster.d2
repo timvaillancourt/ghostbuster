@@ -20,5 +20,8 @@ replica: {
   shape: cylinder
 }
 
+ghostbuster -> primary: MySQL\n(prepare) {
+  style.stroke-dash: 3
+}
 toxiproxy.primary -> primary: MySQL
 toxiproxy.replica -> replica: MySQL
