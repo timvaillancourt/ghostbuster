@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -13,8 +14,13 @@ import (
 )
 
 var (
-	maxRows    int64 = 250000
-	maxWriters int   = 4
+	maxRows    int64  = 250000
+	maxWriters int    = 4
+	host       string = "primary"
+	port       int    = 3306
+	database   string = "test"
+	username   string = "root"
+	password   string
 )
 
 type testRow struct {
@@ -27,7 +33,7 @@ func newTestRow() testRow {
 	return testRow{
 		firstname: gofakeit.FirstName(),
 		lastname:  gofakeit.LastName(),
-		message:   gofakeit.Sentence(4),
+		message:   gofakeit.Sentence(5),
 	}
 }
 
@@ -35,7 +41,7 @@ func (row *testRow) Insert(db *sql.DB) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
-	_, err := db.ExecContext(ctx, `INSERT INTO test.testtable (firstname, lastname, message) VALUES(?, ?, ?)`,
+	_, err := db.ExecContext(ctx, `INSERT INTO testtable (firstname, lastname, message) VALUES(?, ?, ?)`,
 		row.firstname,
 		row.lastname,
 		row.message,
@@ -44,11 +50,18 @@ func (row *testRow) Insert(db *sql.DB) error {
 }
 
 func main() {
+	flag.StringVar(&host, "host", host, "mysql host")
+	flag.IntVar(&port, "port", port, "mysql port")
+	flag.StringVar(&username, "username", username, "mysql username")
+	flag.StringVar(&password, "password", password, "mysql password")
+	flag.StringVar(&database, "database", database, "mysql database")
 	flag.IntVar(&maxWriters, "writers", maxWriters, "number of writers")
 	flag.Int64Var(&maxRows, "max-rows", maxRows, "number of rows to write, 0 == run forever")
 	flag.Parse()
 
-	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/test")
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
+		username, password, host, port, database,
+	))
 	if err != nil {
 		log.Fatal(err)
 	}

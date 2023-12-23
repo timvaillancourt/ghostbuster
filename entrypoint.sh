@@ -13,6 +13,9 @@ until replication_ready; do
   sleep 5
 done
 
+echo "# $0: run ghostbuster"
+ghostbuster -host primary
+
 echo "# $0: enabling toxiproxy proxies"
 curl -sLX POST http://toxiproxy:8474/reset
 

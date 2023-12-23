@@ -1,24 +1,24 @@
-GIT_TAG=v1.1.6-slack1
+GHOST_GIT_TAG=v1.1.6-slack1
 
 all: up
 
 build:
-	GIT_TAG=$(GIT_TAG) docker-compose build
+	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose build
 
 up-mysql:
-	GIT_TAG=$(GIT_TAG) docker-compose up --remove-orphans -d primary replica
+	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose up --remove-orphans -d primary replica
 
 up-toxiproxy:
-	GIT_TAG=$(GIT_TAG) docker-compose up --remove-orphans -d toxiproxy
+	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose up --remove-orphans -d toxiproxy
 
 up: up-mysql up-toxiproxy
-	GIT_TAG=$(GIT_TAG) docker-compose up --remove-orphans gh-ost
+	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose up --remove-orphans test
 
 down:
-	GIT_TAG=$(GIT_TAG) docker-compose down -v
+	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose down -v
 
 cut-over:
-	GIT_TAG=$(GIT_TAG) docker-compose exec -it gh-ost rm -vf /postpone.flag
+	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose exec -it gh-ost rm -vf /postpone.flag
 
 partition-replica:
 	curl -sX POST -d '{"enabled":false}' "http://localhost:8474/proxies/replica" | jq .
@@ -28,4 +28,4 @@ ghostbuster.svg: ghostbuster.d2
 
 assets: ghostbuster.svg
 
-clean: cut-over down
+clean: down

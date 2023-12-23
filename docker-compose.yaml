@@ -2,16 +2,7 @@ version: "3.8"
 services:
   primary:
     image: percona/percona-server:8.0
-    command: |
-      --server-id=1 \
-      --port=3306 \
-      --log_error_verbosity=3 \
-      --log-bin \
-      --log-replica-updates \
-      --gtid_mode=on \
-      --enforce-gtid-consistency \
-      --innodb_flush_log_at_trx_commit=2 \
-      --sync_binlog=0
+    command: --server-id=1 --port=3306 --log_error_verbosity=3 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency --innodb_flush_log_at_trx_commit=2 --sync_binlog=0
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: true
     ports:
@@ -20,17 +11,7 @@ services:
       - ./init-primary.sql:/docker-entrypoint-initdb.d/init-primary.sql:ro
   replica:
     image: percona/percona-server:8.0
-    command: |
-      --server-id=2 \
-      --port=3307 \
-      --log_error_verbosity=3 \
-      --log-bin \
-      --log-replica-updates \
-      --gtid_mode=on \
-      --enforce-gtid-consistency \
-      --innodb_flush_log_at_trx_commit=2 \
-      --sync_binlog=0 \
-      --read_only=ON
+    command: --server-id=2 --port=3307 --log_error_verbosity=3 --log-bin --log-replica-updates --gtid_mode=on --enforce-gtid-consistency --innodb_flush_log_at_trx_commit=2 --sync_binlog=0 --read_only=ON
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: true
     ports:
@@ -53,10 +34,10 @@ services:
     depends_on:
       - primary
       - replica
-  gh-ost:
+  test:
     build:
       args:
-        GIT_TAG: ${GIT_TAG}
+        GHOST_GIT_TAG: ${GHOST_GIT_TAG}
     command: |
       -user root \
       -host toxiproxy \
