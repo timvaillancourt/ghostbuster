@@ -73,41 +73,33 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var wg sync.WaitGroup
-	rowsChan := make(chan testRow, maxWriters)
-
 	var writers int
+	var wg sync.WaitGroup
+	maxWritesPerWorker := maxRows / int64(maxWriters)
 	for writers < maxWriters {
 		wg.Add(1)
-		go func(wg *sync.WaitGroup, rowsChan chan testRow, writer int) {
+		go func(wg *sync.WaitGroup, maxRows int64, writer int) {
 			defer wg.Done()
 
 			log.Printf("started insert worker %d", writer)
-			var count int
-			for row := range rowsChan {
+			var written int64
+			for written < maxRows {
+				row := newTestRow()
 				if err := row.Insert(db); err != nil {
 					log.Printf("ERROR: could not insert row: %+v", err)
 					continue
 				}
-				count++
+				if sleepMillis > 0 {
+					time.Sleep(time.Duration(sleepMillis) * time.Millisecond)
+				}
+				written++
 			}
 
-			log.Printf("stopped insert worker %d, wrote %d rows", writer, count)
-		}(&wg, rowsChan, writers)
+			log.Printf("stopped insert worker %d, wrote %d rows", writer, written)
+		}(&wg, maxWritesPerWorker, writers)
 		writers++
 	}
 
-	var rows int64
-	defer func() {
-		close(rowsChan)
-		wg.Wait()
-		log.Printf("wrote %d rows, exiting", rows)
-	}()
-	for rows < maxRows || maxRows == 0 {
-		rows++
-		if sleepMillis > 0 {
-			time.Sleep(time.Duration(sleepMillis) * time.Millisecond)
-		}
-		rowsChan <- newTestRow()
-	}
+	wg.Wait()
+	log.Println("all workers stopped. exiting")
 }
