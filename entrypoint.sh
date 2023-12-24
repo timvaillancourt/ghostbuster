@@ -13,8 +13,11 @@ until replication_ready; do
   sleep 5
 done
 
-echo "# $0: run ghostbuster"
-ghostbuster -host primary
+echo "# $0: run ghostblaster bulk inserter"
+ghostblaster
+
+echo "# $0: start ghostblaster slow async inserter"
+ghostblaster -max-rows 0 -sleep-millis 10 -writers 1 &
 
 echo "# $0: enabling toxiproxy proxies"
 curl -sLX POST http://toxiproxy:8474/reset

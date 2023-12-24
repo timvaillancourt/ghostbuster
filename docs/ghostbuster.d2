@@ -1,10 +1,11 @@
-ghostbuster: {
+ghostbuster: test container {
+  ghostblaster: ghostblaster
   gh-ost: gh-ost
 }
 
 toxiproxy: {
-  primary: :3306
-  replica: :3307
+  primary: :3306\n(primary)
+  replica: :3307\n(replica)
 }
 
 ghostbuster -> toxiproxy: REST API {
@@ -20,7 +21,7 @@ replica: {
   shape: cylinder
 }
 
-ghostbuster.ghostbuster -> primary: MySQL\n(prepare) {
+ghostbuster.ghostblaster -> primary: MySQL {
   style.stroke-dash: 3
 }
 toxiproxy.primary -> primary: MySQL

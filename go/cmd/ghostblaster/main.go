@@ -14,13 +14,14 @@ import (
 )
 
 var (
-	maxRows    int64  = 250000
-	maxWriters int    = 4
-	host       string = "primary"
-	port       int    = 3306
-	database   string = "test"
-	username   string = "root"
-	password   string
+	maxRows     int64  = 250000
+	maxWriters  int    = 4
+	host        string = "primary"
+	port        int    = 3306
+	sleepMillis int    = 0
+	database    string = "test"
+	username    string = "root"
+	password    string
 )
 
 type testRow struct {
@@ -56,6 +57,7 @@ func main() {
 	flag.StringVar(&password, "password", password, "mysql password")
 	flag.StringVar(&database, "database", database, "mysql database")
 	flag.IntVar(&maxWriters, "writers", maxWriters, "number of writers")
+	flag.IntVar(&sleepMillis, "sleep-millis", sleepMillis, "number of milliseonds to sleep between writes")
 	flag.Int64Var(&maxRows, "max-rows", maxRows, "number of rows to write, 0 == run forever")
 	flag.Parse()
 
@@ -95,15 +97,17 @@ func main() {
 		writers++
 	}
 
+	var rows int64
 	defer func() {
 		close(rowsChan)
 		wg.Wait()
+		log.Printf("wrote %d rows, exiting", rows)
 	}()
-
-	var rows int64
-	for rows < maxRows {
+	for rows < maxRows || maxRows == 0 {
 		rows++
+		if sleepMillis > 0 {
+			time.Sleep(time.Duration(sleepMillis) * time.Millisecond)
+		}
 		rowsChan <- newTestRow()
 	}
-	log.Printf("wrote %d rows, exiting", rows)
 }

@@ -1,31 +1,36 @@
 GHOST_GIT_TAG=v1.1.6-slack1
+GHOST_GITHUB_ORG=slackhq
 
 all: up
 
-build:
-	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose build
+env:
+	echo "GHOST_GIT_TAG=$(GHOST_GIT_TAG)" >.env
+	echo "GHOST_GITHUB_ORG=$(GHOST_GITHUB_ORG)" >>.env
 
-up-mysql:
-	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose up --remove-orphans -d primary replica
+build: env
+	docker-compose build
 
-up-toxiproxy:
-	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose up --remove-orphans -d toxiproxy
+up-mysql: env
+	docker-compose up --remove-orphans -d primary replica
 
-up: up-mysql up-toxiproxy
-	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose up --remove-orphans test
+up-toxiproxy: env
+	docker-compose up --remove-orphans -d toxiproxy
 
-down:
-	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose down -v
+up: env up-mysql up-toxiproxy
+	docker-compose up --remove-orphans test
 
-cut-over:
-	GHOST_GIT_TAG=$(GHOST_GIT_TAG) docker-compose exec -it test rm -vf /postpone.flag
+down: env
+	docker-compose down -v
+
+cut-over: env
+	docker-compose exec -it test rm -vf /postpone.flag
 
 partition-replica:
 	curl -sX POST -d '{"enabled":false}' "http://localhost:8474/proxies/replica" | jq .
 
-ghostbuster.svg: ghostbuster.d2
-	d2 --dark-theme 200 ghostbuster.d2 ghostbuster.svg
+docs/ghostbuster.svg: docs/ghostbuster.d2
+	d2 --dark-theme 200 docs/ghostbuster.d2 docs/ghostbuster.svg
 
-assets: ghostbuster.svg
+assets: docs/ghostbuster.svg
 
 clean: down
