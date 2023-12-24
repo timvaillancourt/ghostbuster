@@ -8,6 +8,16 @@ toxiproxy: {
   replica: :3307\n(replica)
 }
 
+user: {
+  shape: person
+}
+user -> ghostbuster.gh-ost: interactive\ncmds {
+  style.stroke-dash: 3
+}
+user -> toxiproxy: REST API {
+  style.stroke-dash: 3
+}
+
 ghostbuster -> toxiproxy: REST API {
   style.stroke-dash: 3
 }
@@ -21,8 +31,6 @@ replica: {
   shape: cylinder
 }
 
-ghostbuster.ghostblaster -> primary: MySQL {
-  style.stroke-dash: 3
-}
+ghostbuster.ghostblaster -> primary: MySQL
 toxiproxy.primary -> primary: MySQL
 toxiproxy.replica -> replica: MySQL

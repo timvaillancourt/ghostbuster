@@ -1,7 +1,7 @@
 GHOST_GIT_TAG=v1.1.6-slack1
 GHOST_GITHUB_ORG=slackhq
 
-all: up
+all: assets up
 
 env:
 	echo "GHOST_GIT_TAG=$(GHOST_GIT_TAG)" >.env
