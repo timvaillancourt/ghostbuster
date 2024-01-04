@@ -1,6 +1,6 @@
 FROM golang:1.21-bullseye AS build
 
-# ghostbuster
+# ghostblaster
 RUN mkdir -p /go/src/github.com/timvaillancourt/ghostbuster
 COPY . /go/src/github.com/timvaillancourt/ghostbuster
 WORKDIR /go/src/github.com/timvaillancourt/ghostbuster
@@ -26,4 +26,6 @@ COPY --from=build /ghostblaster /usr/local/bin/ghostblaster
 COPY --from=build /gh-ost /usr/local/bin/gh-ost
 
 ADD entrypoint.sh /entrypoint.sh
+
+USER nobody
 ENTRYPOINT ["/entrypoint.sh"]

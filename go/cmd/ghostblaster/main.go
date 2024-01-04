@@ -73,17 +73,21 @@ func main() {
 		log.Fatal(err)
 	}
 
+	var maxRowsPerWorker int64
+	if maxRows > 0 {
+		maxRowsPerWorker = maxRows / int64(maxWriters)
+	}
+
 	var writers int
 	var wg sync.WaitGroup
-	maxWritesPerWorker := maxRows / int64(maxWriters)
 	for writers < maxWriters {
 		wg.Add(1)
-		go func(wg *sync.WaitGroup, maxRows int64, writer int) {
+		go func(wg *sync.WaitGroup, maxWorkerRows int64, writer int) {
 			defer wg.Done()
 
 			log.Printf("started insert worker %d", writer)
 			var written int64
-			for written < maxRows {
+			for maxWorkerRows == 0 || written < maxWorkerRows {
 				row := newTestRow()
 				if err := row.Insert(db); err != nil {
 					log.Printf("ERROR: could not insert row: %+v", err)
@@ -96,7 +100,7 @@ func main() {
 			}
 
 			log.Printf("stopped insert worker %d, wrote %d rows", writer, written)
-		}(&wg, maxWritesPerWorker, writers)
+		}(&wg, maxRowsPerWorker, writers)
 		writers++
 	}
 
