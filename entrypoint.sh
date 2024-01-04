@@ -17,7 +17,7 @@ echo "# $0: run ghostblaster bulk inserter"
 ghostblaster
 
 echo "# $0: start ghostblaster slow async inserter"
-ghostblaster -max-rows 0 -sleep-millis 1 -writers 1 &
+ghostblaster -max-rows 0 -sleep-millis 3 -writers 1 &
 pid=$?
 trap "kill $pid" EXIT SIGTERM
 
@@ -26,5 +26,5 @@ curl -sLX POST http://toxiproxy:8474/reset
 
 echo "# executing gh-ost command"
 [ -e /tmp/gh-ost.test.testtable.sock ] && rm -f /tmp/gh-ost.test.testtable.sock
-touch /postpone.flag
+touch /tmp/postpone.flag
 gh-ost $*

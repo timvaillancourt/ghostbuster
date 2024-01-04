@@ -21,7 +21,7 @@ services:
     depends_on:
       - primary
   toxiproxy:
-    image: ghcr.io/shopify/toxiproxy
+    image: ghcr.io/shopify/toxiproxy:${TOXIPROXY_VERSION}
     command: -host=0.0.0.0 -config /toxiproxy.json -proxy-metrics
     expose:
       - 3306
@@ -59,7 +59,7 @@ services:
       -initially-drop-ghost-table \
       -initially-drop-old-table \
       -serve-tcp-port 1234 \
-      -postpone-cut-over-flag-file /postpone.flag \
+      -postpone-cut-over-flag-file /tmp/postpone.flag \
       -verbose \
       -execute
     expose:
